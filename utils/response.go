@@ -29,6 +29,13 @@ func ErrorResponse(c *gin.Context, code int, message string) {
 }
 
 func BadRequestResponse(c *gin.Context, message string) {
+		Logger.WithFields(map[string]any{
+		"status":  CodeInternalServerError,
+		"path":    c.Request.URL.Path,
+		"method":  c.Request.Method,
+		"message": message,
+	}).Error(message)
+	
 	c.JSON(CodeBadRequest, ResponsePayload{
 		Code:    CodeBadRequest,
 		Message: "Bad Request: " + message,
@@ -36,6 +43,15 @@ func BadRequestResponse(c *gin.Context, message string) {
 }
 
 func InternalServerErrorResponse(c *gin.Context, code int, message string) {
+	// Log ke terminal (logrus sudah diinisialisasi di InitLogger)
+	Logger.WithFields(map[string]any{
+		"status":  CodeInternalServerError,
+		"path":    c.Request.URL.Path,
+		"method":  c.Request.Method,
+		"message": message,
+	}).Error("internal server error")
+
+	// Kirim response ke client
 	c.JSON(CodeInternalServerError, ResponsePayload{
 		Code:    CodeInternalServerError,
 		Message: message,
