@@ -11,7 +11,7 @@ func SetupUserRoutes(r *gin.Engine) {
 	user := r.Group("/users")
 	{
 		user.GET("/", func(c *gin.Context) {
-			err := errors.New("simulasi error internal")
+			err := errors.New("Bad Request")
 			utils.LogError(err)
 			utils.BadRequestResponse(c, err.Error())
 		})
