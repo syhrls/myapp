@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"example/hello/database"
 	"example/hello/middleware"
 	"example/hello/models"
@@ -51,8 +50,6 @@ func main() {
 
 	// NoRoute fallback
 	r.NoRoute(func(c *gin.Context) {
-		err := errors.New("route not found")
-		utils.LogError(err)
 		utils.ErrorResponse(c, utils.CodeNotFound, "Route not found")
 	})
 

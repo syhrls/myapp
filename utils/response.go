@@ -1,7 +1,6 @@
 package utils
 
 import (
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,7 +12,7 @@ type ResponsePayload struct {
 
 // SuccessResponse sends a success response with custom code, message, and optional data
 func SuccessResponse(c *gin.Context, message string, data any) {
-	Info("[SUCCESS] "+message)
+	Info("[SUCCESS] " + message)
 	c.JSON(CodeSuccess, ResponsePayload{
 		Message: message,
 		Data:    data,
@@ -22,14 +21,14 @@ func SuccessResponse(c *gin.Context, message string, data any) {
 
 // ErrorResponse sends an error response with custom code and message
 func ErrorResponse(c *gin.Context, code int, message string) {
-	Error("[ERROR] "+message)
+	Error(message)
 	c.JSON(code, ResponsePayload{
 		Message: message,
 	})
 }
 
 func BadRequestResponse(c *gin.Context, message string) {
-	Error("[BAD REQUEST] "+message)
+	Error(message)
 	c.JSON(CodeBadRequest, ResponsePayload{
 		Message: "Bad Request: " + message,
 	})
