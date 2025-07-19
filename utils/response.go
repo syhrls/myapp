@@ -28,10 +28,10 @@ func ErrorResponse(c *gin.Context, code int, message string) {
 	})
 }
 
-func BadRequestResponse(c *gin.Context, code int, message string) {
+func BadRequestResponse(c *gin.Context, message string) {
 	c.JSON(CodeBadRequest, ResponsePayload{
-		Code:    code,
-		Message: message,
+		Code:    CodeBadRequest,
+		Message: "Bad Request: " + message,
 	})
 }
 
