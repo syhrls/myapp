@@ -37,15 +37,7 @@ func BadRequestResponse(c *gin.Context, message string) {
 
 func InternalServerErrorResponse(c *gin.Context, code int, message string) {
 	c.JSON(CodeInternalServerError, ResponsePayload{
-		Code:    code,
+		Code:    CodeInternalServerError,
 		Message: message,
-	})
-}
-
-func CustomResponse(c *gin.Context, statusCode int, code int, message string, data any) {
-	c.JSON(statusCode, ResponsePayload{
-		Code:    code,
-		Message: message,
-		Data:    data,
 	})
 }
