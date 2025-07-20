@@ -13,6 +13,8 @@ import (
 )
 
 func main() {
+	gin.DefaultWriter = utils.ColorWriter{Writer: os.Stdout}
+	
 	// Load .env
 	err := godotenv.Load()
 	if err != nil {

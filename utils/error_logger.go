@@ -19,7 +19,6 @@ func LogError(err error) {
 
 	funcName := runtime.FuncForPC(pc).Name()
 	filename := filepath.Base(fullPath)
-	timestamp := time.Now().Format("2006-01-02 15:04:05")
 
-	fmt.Printf("%s [ERROR] %s:%d in %s() -> %v\n", timestamp, filename, line, funcName, err)
+	fmt.Printf("[ERROR] %s:%d in %s() -> %v\n", filename, line, funcName, err)
 }
