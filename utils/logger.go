@@ -1,7 +1,9 @@
 package utils
 
 import (
-	"log"
+	"bytes"
+	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -18,40 +20,64 @@ const (
 )
 
 func Info(message string) {
-	log.Println(colorGreen + "[INFO] " + message + colorReset)
+	fmt.Println(colorGreen + "[INFO] " + message + colorReset)
 }
 
 func Debug(message string) {
-	log.Println(colorCyan + "[DEBUG] " + message + colorReset)
+	fmt.Println(colorCyan + "[DEBUG] " + message + colorReset)
 }
 
 func Error(message string) {
-    if message == "" {
-        return
-    }
+	if message == "" {
+		return
+	}
 
-    pc, fullPath, line, ok := runtime.Caller(2)
-    if !ok {
-        log.Printf(colorYellow+"[ERROR] (no caller info) -> %v"+colorReset+"\n", message)
-        return
-    }
+	pc, fullPath, line, ok := runtime.Caller(2)
+	if !ok {
+		fmt.Printf(colorYellow+"[ERROR] (no caller info) -> %v"+colorReset+"\n", message)
+		return
+	}
 
-    funcName := runtime.FuncForPC(pc).Name()
+	funcName := runtime.FuncForPC(pc).Name()
 
-    wd, _ := os.Getwd()
-    relPath, err := filepath.Rel(wd, fullPath)
-    if err != nil {
-        relPath = fullPath
-    }
+	wd, _ := os.Getwd()
+	relPath, err := filepath.Rel(wd, fullPath)
+	if err != nil {
+		relPath = fullPath
+	}
 
-    log.Printf(colorYellow+"[ERROR] %s:%d in %s() -> %v"+colorReset+"\n", relPath, line, funcName, message)
+	fmt.Printf(colorYellow+"[ERROR] %s:%d in %s() -> %v"+colorReset+"\n", relPath, line, funcName, message)
 }
 
 func Fatal(message string) {
-	log.Fatalln(colorRed + "[FATAL] " + message + colorReset)
+	fmt.Print(colorRed + "[FATAL] " + message + colorReset)
 }
 
 func InfoWithContext(c *gin.Context, message string) {
 	reqID, _ := c.Get("request_id")
-	log.Printf(colorYellow+"[INFO] [%v] %v"+colorReset+"\n", reqID, message)
+	fmt.Printf(colorGreen+"[INFO] [%v] %v"+colorReset+"\n", reqID, message)
+}
+
+type ColorWriter struct {
+	Writer io.Writer
+}
+
+func (cw ColorWriter) Write(p []byte) (n int, err error) {
+	if bytes.Contains(p, []byte("[GIN-debug]")) {
+		colored := colorGreen + string(p) + colorReset
+		return cw.Writer.Write([]byte(colored))
+	}else if bytes.Contains(p, []byte("[ERROR]")) {
+		colored := colorRed + string(p) + colorReset
+		return cw.Writer.Write([]byte(colored))
+	} else if bytes.Contains(p, []byte("[GIN]")) {
+		colored := colorGreen + string(p) + colorReset
+		return cw.Writer.Write([]byte(colored))
+	} else if bytes.Contains(p, []byte("[WARN]")) {
+		colored := colorYellow + string(p) + colorReset
+		return cw.Writer.Write([]byte(colored))
+	} else if bytes.Contains(p, []byte("[DEBUG]")) {
+		colored := colorCyan + string(p) + colorReset
+		return cw.Writer.Write([]byte(colored))
+	}
+	return cw.Writer.Write(p)
 }
