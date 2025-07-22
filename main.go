@@ -13,8 +13,9 @@ import (
 )
 
 func main() {
+	utils.InitLoggerWIB()
 	gin.DefaultWriter = utils.ColorWriter{Writer: os.Stdout}
-	
+
 	// Load .env
 	err := godotenv.Load()
 	if err != nil {
