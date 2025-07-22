@@ -4,12 +4,33 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"runtime"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
+
+type JakartaLogWriter struct {
+    out io.Writer
+}
+
+func (w JakartaLogWriter) Write(p []byte) (n int, err error) {
+    loc, _ := time.LoadLocation("Asia/Jakarta")
+    timestamp := time.Now().In(loc).Format("2006/01/02 15:04:05")
+
+    // Tambahkan waktu Jakarta + pesan asli
+    newLog := append([]byte(timestamp+" "), p...)
+    return w.out.Write(newLog)
+}
+
+// Inisialisasi logger agar pakai zona waktu Asia/Jakarta
+func InitLoggerWIB() {
+    log.SetFlags(0) // hilangkan waktu default
+    log.SetOutput(JakartaLogWriter{out: os.Stdout})
+}
 
 const (
 	colorReset  = "\033[0m"
@@ -20,11 +41,11 @@ const (
 )
 
 func Info(message string) {
-	fmt.Println(colorGreen + "[INFO] " + message + colorReset)
+	log.Println(colorGreen + "[INFO] " + message + colorReset)
 }
 
 func Debug(message string) {
-	fmt.Println(colorCyan + "[DEBUG] " + message + colorReset)
+	log.Println(colorCyan + "[DEBUG] " + message + colorReset)
 }
 
 func Error(message string) {
@@ -34,7 +55,7 @@ func Error(message string) {
 
 	pc, fullPath, line, ok := runtime.Caller(2)
 	if !ok {
-		fmt.Printf(colorYellow+"[ERROR] (no caller info) -> %v"+colorReset+"\n", message)
+		log.Printf(colorYellow+"[ERROR] (no caller info) -> %v"+colorReset+"\n", message)
 		return
 	}
 
@@ -46,16 +67,24 @@ func Error(message string) {
 		relPath = fullPath
 	}
 
-	fmt.Printf(colorYellow+"[ERROR] %s:%d in %s() -> %v"+colorReset+"\n", relPath, line, funcName, message)
+	log.Printf(colorYellow+"[ERROR] %s:%d in %s() -> %v"+colorReset+"\n", relPath, line, funcName, message)
 }
 
 func Fatal(message string) {
-	fmt.Print(colorRed + "[FATAL] " + message + colorReset)
+	log.Print(colorRed + "[FATAL] " + message + colorReset)
 }
 
-func InfoWithContext(c *gin.Context, message string) {
-	reqID, _ := c.Get("request_id")
-	fmt.Printf(colorGreen+"[INFO] [%v] %v"+colorReset+"\n", reqID, message)
+func InfoWithContext(c *gin.Context, format string, args ...any) {
+    requestID, exists := c.Get("request_id")
+    if !exists {
+        requestID = "unknown"
+    }
+
+
+    // Waktu zona +7 / Asia/Jakarta
+
+    // Hanya cetak 1 timestamp manual
+    log.Printf(" [INFO] [%s] %s", requestID, fmt.Sprintf(format, args...))
 }
 
 type ColorWriter struct {
