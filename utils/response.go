@@ -12,7 +12,7 @@ type ResponsePayload struct {
 
 // SuccessResponse sends a success response with custom code, message, and optional data
 func SuccessResponse(c *gin.Context, message string, data any) {
-	Info("[SUCCESS] " + message)
+	Success(message)
 	c.JSON(CodeSuccess, ResponsePayload{
 		Message: message,
 		Data:    data,

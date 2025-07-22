@@ -7,10 +7,10 @@ import (
 )
 
 func GetAllUsers(c *gin.Context) {
-	utils.Success("Fetching all users")
+	utils.Info("Fetching all users")
 
 	// Dummy data
-	users := []map[string]interface{}{
+	users := []map[string]any{
 		{"id": 1, "name": "John Doe"},
 		{"id": 2, "name": "Jane Smith"},
 	}
