@@ -18,10 +18,10 @@ func SetupUserRoutes(r *gin.Engine) {
 func LogStartEnd() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		utils.InfoWithContext(c, fmt.Sprintf("Start processing %s", c.FullPath()))
+		utils.InfoWithContext(c, "%s", fmt.Sprintf("Start processing %s", c.FullPath()))
 
 		c.Next()
 
-		utils.InfoWithContext(c, fmt.Sprintf("End processing %s", c.FullPath()))
+		utils.InfoWithContext(c, "%s", fmt.Sprintf("End processing %s", c.FullPath()))
 	}
 }
