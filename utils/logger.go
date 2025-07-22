@@ -15,21 +15,26 @@ import (
 
 type JakartaLogWriter struct {
     out io.Writer
+    loc *time.Location
 }
 
 func (w JakartaLogWriter) Write(p []byte) (n int, err error) {
-    loc, _ := time.LoadLocation("Asia/Jakarta")
-    timestamp := time.Now().In(loc).Format("2006/01/02 15:04:05")
-
-    // Tambahkan waktu Jakarta + pesan asli
+    timestamp := time.Now().In(w.loc).Format("2006/01/02 15:04:05")
     newLog := append([]byte(timestamp+" "), p...)
     return w.out.Write(newLog)
 }
 
-// Inisialisasi logger agar pakai zona waktu Asia/Jakarta
 func InitLoggerWIB() {
-    log.SetFlags(0) // hilangkan waktu default
-    log.SetOutput(JakartaLogWriter{out: os.Stdout})
+    loc, err := time.LoadLocation("Asia/Jakarta")
+    if err != nil {
+        log.Fatalf("Failed to load location Asia/Jakarta: %v", err)
+    }
+
+    log.SetFlags(0) // hilangkan timestamp default
+    log.SetOutput(JakartaLogWriter{
+        out: os.Stdout,
+        loc: loc,
+    })
 }
 
 const (
