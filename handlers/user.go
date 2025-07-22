@@ -7,7 +7,7 @@ import (
 )
 
 func GetAllUsers(c *gin.Context) {
-	utils.InfoWithContext(c, "Fetching dummy user data")
+	utils.Success("Fetching all users")
 
 	// Dummy data
 	users := []map[string]interface{}{

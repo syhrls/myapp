@@ -41,18 +41,27 @@ func InitLoggerWIB() {
 
 const (
 	colorReset  = "\033[0m"
+
+	colorBlack  = "\033[30m"
 	colorRed    = "\033[31m"
 	colorGreen  = "\033[32m"
 	colorYellow = "\033[33m"
+	colorBlue   = "\033[34m"
+	colorPurple = "\033[35m"
 	colorCyan   = "\033[36m"
+	colorWhite  = "\033[37m"
 )
 
+func Success(message string) {
+	log.Println(colorGreen + "[SUCCESS] " + message + colorReset)
+}
+
 func Info(message string) {
-	log.Println(colorGreen + "[INFO] " + message + colorReset)
+	log.Println(colorBlue + "[INFO] " + message + colorReset)
 }
 
 func Debug(message string) {
-	log.Println(colorCyan + "[DEBUG] " + message + colorReset)
+	log.Println(colorPurple + "[DEBUG] " + message + colorReset)
 }
 
 func Error(message string) {
@@ -62,7 +71,7 @@ func Error(message string) {
 
 	pc, fullPath, line, ok := runtime.Caller(2)
 	if !ok {
-		log.Printf(colorYellow+"[ERROR] (no caller info) -> %v"+colorReset+"\n", message)
+		log.Printf(colorRed+"[ERROR] (no caller info) -> %v"+colorReset+"\n", message)
 		return
 	}
 
@@ -74,7 +83,7 @@ func Error(message string) {
 		relPath = fullPath
 	}
 
-	log.Printf(colorYellow+"[ERROR] %s:%d in %s() -> %v"+colorReset+"\n", relPath, line, funcName, message)
+	log.Printf(colorRed+"[ERROR] %s:%d in %s() -> %v"+colorReset+"\n", relPath, line, funcName, message)
 }
 
 func Fatal(message string) {
@@ -87,11 +96,8 @@ func InfoWithContext(c *gin.Context, format string, args ...any) {
         requestID = "unknown"
     }
 
-
-    // Waktu zona +7 / Asia/Jakarta
-
     // Hanya cetak 1 timestamp manual
-    log.Printf(" [INFO] [%s] %s", requestID, fmt.Sprintf(format, args...))
+    Info(fmt.Sprintf("[REQUEST ID: %s] %s", requestID, fmt.Sprintf(format, args...)))
 }
 
 type ColorWriter struct {
@@ -100,19 +106,19 @@ type ColorWriter struct {
 
 func (cw ColorWriter) Write(p []byte) (n int, err error) {
 	if bytes.Contains(p, []byte("[GIN-debug]")) {
-		colored := colorGreen + string(p) + colorReset
+		colored := colorBlue + string(p) + colorReset
 		return cw.Writer.Write([]byte(colored))
 	}else if bytes.Contains(p, []byte("[ERROR]")) {
 		colored := colorRed + string(p) + colorReset
 		return cw.Writer.Write([]byte(colored))
 	} else if bytes.Contains(p, []byte("[GIN]")) {
-		colored := colorGreen + string(p) + colorReset
+		colored := colorBlue + string(p) + colorReset
 		return cw.Writer.Write([]byte(colored))
 	} else if bytes.Contains(p, []byte("[WARN]")) {
 		colored := colorYellow + string(p) + colorReset
 		return cw.Writer.Write([]byte(colored))
 	} else if bytes.Contains(p, []byte("[DEBUG]")) {
-		colored := colorCyan + string(p) + colorReset
+		colored := colorPurple + string(p) + colorReset
 		return cw.Writer.Write([]byte(colored))
 	}
 	return cw.Writer.Write(p)
