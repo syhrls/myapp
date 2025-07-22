@@ -27,15 +27,17 @@ func (w JakartaLogWriter) Write(p []byte) (n int, err error) {
 func InitLoggerWIB() {
     loc, err := time.LoadLocation("Asia/Jakarta")
     if err != nil {
-        log.Fatalf("Failed to load location Asia/Jakarta: %v", err)
+        log.Println("[WARN] Falling back to manual +07 timezone due to missing Asia/Jakarta")
+        loc = time.FixedZone("WIB", 7*3600)
     }
 
-    log.SetFlags(0) // hilangkan timestamp default
+    log.SetFlags(0)
     log.SetOutput(JakartaLogWriter{
         out: os.Stdout,
         loc: loc,
     })
 }
+
 
 const (
 	colorReset  = "\033[0m"
