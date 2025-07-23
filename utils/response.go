@@ -14,7 +14,7 @@ type ResponsePayload struct {
 func SuccessResponse(c *gin.Context, message string, data any) {
 	Success(message)
 	c.JSON(CodeSuccess, ResponsePayload{
-		Message: message,
+		Message: SUCCESS,
 		Data:    data,
 	})
 }
@@ -30,7 +30,7 @@ func ErrorResponse(c *gin.Context, code int, message string) {
 func BadRequestResponse(c *gin.Context, message string) {
 	Error(message)
 	c.JSON(CodeBadRequest, ResponsePayload{
-		Message: "Bad Request: " + message,
+		Message: message,
 	})
 }
 

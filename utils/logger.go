@@ -27,7 +27,7 @@ func (w JakartaLogWriter) Write(p []byte) (n int, err error) {
 func InitLoggerWIB() {
     loc, err := time.LoadLocation("Asia/Jakarta")
     if err != nil {
-        log.Println("[WARN] Falling back to manual +07 timezone due to missing Asia/Jakarta")
+		Warn("Falling back to manual +07 timezone due to missing Asia/Jakarta")
         loc = time.FixedZone("WIB", 7*3600)
     }
 
@@ -62,6 +62,10 @@ func Info(message string) {
 
 func Debug(message string) {
 	log.Println(colorPurple + "[DEBUG] " + message + colorReset)
+}
+
+func Warn(message string) {
+	log.Println(colorYellow + "[WARN] " + message + colorReset)
 }
 
 func Error(message string) {
@@ -122,4 +126,12 @@ func (cw ColorWriter) Write(p []byte) (n int, err error) {
 		return cw.Writer.Write([]byte(colored))
 	}
 	return cw.Writer.Write(p)
+}
+
+func LogStartEnd() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		InfoWithContext(c, "Start processing %s", c.Request.URL.Path)
+		c.Next()
+		InfoWithContext(c, "End processing %s", c.Request.URL.Path)
+	}
 }

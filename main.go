@@ -41,6 +41,8 @@ func main() {
 	if mode == "" {
 		mode = gin.DebugMode
 	}
+
+	// Set Gin mode
 	gin.SetMode(mode)
 	utils.Info("Running in mode: " + mode)
 
@@ -49,17 +51,18 @@ func main() {
 	r.Use(middleware.RequestID())
 
 	// Setup Routes
+	r.SetTrustedProxies([]string{"192.168.1.2"})
 	routes.SetupRoutes(r)
 
 	// NoRoute fallback
 	r.NoRoute(func(c *gin.Context) {
-		utils.ErrorResponse(c, utils.CodeNotFound, "Route not found")
+		utils.ErrorResponse(c, utils.CodeNotFound, "No Route Matched")
 	})
 
 	// Start server
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = "8080" // Default port
 	}
 	utils.Info("Server running on port: " + port)
 	r.Run(":" + port)
