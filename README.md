@@ -1,12 +1,28 @@
-# Go + Gin Web API
+# 📦 Project NamaProyek
 
-Proyek ini adalah contoh web API menggunakan Golang dengan framework [Gin](https://github.com/gin-gonic/gin). Di dalamnya terdapat middleware untuk logging request **dengan timezone WIB (Asia/Jakarta)** dan **request ID** per request.
+Deskripsi singkat tentang proyek. Misalnya:
 
-## ✨ Fitur Utama
+> Aplikasi backend RESTful API menggunakan Golang dan Gin Framework untuk mengelola data pengguna secara efisien dan scalable.
 
-- Middleware `RequestID`: menghasilkan UUID unik untuk setiap request dan menambahkannya ke header `X-Request-ID`.
-- Middleware `LogStartEnd`: menampilkan log ketika request masuk dan selesai diproses.
-- Log disesuaikan ke zona waktu **WIB (+07:00)** meskipun server berada di zona waktu lain.
-- Output log bersih, tanpa duplikasi timestamp.
+## 🚀 Fitur
 
-## 📁 Struktur Direktori
+- CRUD (Create, Read, Update, Delete)
+- Middleware autentikasi menggunakan JWT
+- Validasi input dengan binding dan validator
+- Logging terstruktur
+- Struktur folder yang clean dan scalable
+
+## 🧱 Struktur Folder
+
+```bash
+.
+├── cmd/                  # Entry point aplikasi
+├── config/               # Konfigurasi environment, database, dsb
+├── controllers/          # Handler HTTP
+├── models/               # Struct data dan definisi database
+├── routes/               # Routing aplikasi
+├── services/             # Business logic
+├── utils/                # Helper functions
+├── main.go               # Entry utama
+└── go.mod
+

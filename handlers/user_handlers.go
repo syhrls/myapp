@@ -12,15 +12,26 @@ import (
 )
 
 func GetAllUsers(c *gin.Context) {
-	utils.Info("Fetching all users")
-
-	// Dummy data
-	users := []map[string]any{
-		{"id": 1, "name": "John Doe"},
-		{"id": 2, "name": "Jane Smith"},
+	users, err := v1.GetAllUsers()
+	if err != nil {
+		utils.BadRequestResponse(c, "Failed to retrieve users: "+err.Error())
+		return
 	}
 
-	utils.SuccessResponse(c, "Users fetched successfully", users)
+	if len(users) == 0 {
+		utils.SuccessResponse(c, "No users found", nil)
+		return
+	}
+
+	filteredUsers := make([]map[string]any, len(users))
+	for i, u := range users {
+		filteredUsers[i] = map[string]any{
+			"username": u.Username,
+			"email":    u.Email,
+		}
+	}
+
+	utils.SuccessResponse(c, "Users retrieved successfully", filteredUsers)
 }
 
 func CreateUser(c *gin.Context) {
@@ -32,15 +43,14 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	if condition := input.Username == "" || input.Email == ""; condition {
-		utils.BadRequestResponse(c, "Username and Email are required")
+	if condition := input.Username == ""; condition {
+		utils.BadRequestResponse(c, "Username is required")
 		return
 	}
 
 	// Map DTO ke model User
 	user := models.User{
 		Username:  input.Username,
-		Email:     input.Email,
 		CreatedBy: utils.SYSTEM_CAPS,
 		CreatedAt: time.Now(),
 		UpdatedBy: utils.SYSTEM_CAPS,
@@ -71,5 +81,12 @@ func GetUserByUsername(c *gin.Context) {
 		return
 	}
 
-	utils.SuccessResponse(c, "User found", user)
+	// Only return username and email fields
+	filteredUser := map[string]any{
+		"username": user.Username,
+		"email":    user.Email,
+	}
+
+	utils.SuccessResponse(c, "User found", filteredUser)
+
 }

@@ -15,12 +15,24 @@ func NewUserRepository() UserRepository {
 	return &userRepository{}
 }
 
-// FindByUsername mencari user berdasarkan username (exact match)
 func (r *userRepository) FindByUsername(username string) (*models.User, error) {
 	var user models.User
-	err := database.DB.Where("username = ?", username).First(&user).Error
+	err := database.DB.
+		Where("username = ?", username).
+		Order("created_at DESC").
+		First(&user).Error
+
 	if err != nil {
 		return nil, err
 	}
 	return &user, nil
+}
+
+func GetAllUsers() ([]models.User, error) {
+	var users []models.User
+	err := database.DB.Find(&users).Error
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
 }

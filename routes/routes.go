@@ -8,4 +8,5 @@ import (
 func SetupRoutes(r *gin.Engine) {
 	api := r.Group("/api")
 	v1.SetupUserRoutes(api)
+	v1.SetupAuthRoutes(api)
 }

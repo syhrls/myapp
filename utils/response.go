@@ -34,6 +34,12 @@ func BadRequestResponse(c *gin.Context, message string) {
 	})
 }
 
+func UnauthorizedResponse(c *gin.Context, message string) {
+	Error(message)
+	c.JSON(CodeUnauthorized, ResponsePayload{
+		Message: message,
+	})
+}
 func InternalServerErrorResponse(c *gin.Context) {
 	Error("Internal Server Error")
 	c.JSON(CodeInternalServerError, ResponsePayload{
