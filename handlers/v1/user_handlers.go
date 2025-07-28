@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func GetAllUsers(c *gin.Context) {
@@ -30,6 +31,10 @@ func GetAllUsers(c *gin.Context) {
 			"email":    u.Email,
 		}
 	}
+
+	userID, _ := c.Get("user_id")
+	device := c.GetHeader("User-Agent") // atau header lain sesuai kebutuhan
+	LogActivity(database.DB, userID.(uuid.UUID), device, "GET /v1/users")
 
 	utils.SuccessResponse(c, "Users retrieved successfully", filteredUsers)
 }
@@ -86,6 +91,10 @@ func GetUserByUsername(c *gin.Context) {
 		"username": user.Username,
 		"email":    user.Email,
 	}
+	
+	userID, _ := c.Get("user_id")
+	device := c.GetHeader("User-Agent") // atau header lain sesuai kebutuhan
+	LogActivity(database.DB, userID.(uuid.UUID), device, "GET /v1/users")
 
 	utils.SuccessResponse(c, "User found", filteredUser)
 
