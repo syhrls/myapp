@@ -33,7 +33,10 @@ func GetAllUsers(c *gin.Context) {
 	}
 
 	userID, _ := c.Get("user_id")
-	device := c.GetHeader("User-Agent") // atau header lain sesuai kebutuhan
+	device := c.GetHeader("X-Device-Id")
+	if device == "" {
+		device = c.GetHeader("User-Agent") // fallback jika tidak ada
+	}
 	LogActivity(database.DB, userID.(uuid.UUID), device, c.Request.Method+" "+c.Request.URL.Path)
 
 	utils.SuccessResponse(c, "Users retrieved successfully", filteredUsers)
@@ -91,9 +94,12 @@ func GetUserByUsername(c *gin.Context) {
 		"username": user.Username,
 		"email":    user.Email,
 	}
-	
+
 	userID, _ := c.Get("user_id")
-	device := c.GetHeader("User-Agent") // atau header lain sesuai kebutuhan
+device := c.GetHeader("X-Device-Id")
+	if device == "" {
+		device = c.GetHeader("User-Agent") // fallback jika tidak ada
+	}	
 	LogActivity(database.DB, userID.(uuid.UUID), device, c.Request.Method+" "+c.Request.URL.Path)
 
 	utils.SuccessResponse(c, "User found", filteredUser)

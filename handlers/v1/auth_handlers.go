@@ -70,9 +70,12 @@ func RegisterHandler(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		device := c.GetHeader("User-Agent") // atau header lain sesuai kebutuhan
+		device := c.GetHeader("X-Device-Id")
+		if device == "" {
+			device = c.GetHeader("User-Agent") // fallback jika tidak ada
+		}
 		LogActivity(database.DB, users.ID, device, c.Request.Method+" "+c.Request.URL.Path)
-		
+
 		utils.SuccessResponse(c, "Registration successful", users)
 	}
 }
@@ -138,7 +141,10 @@ func LoginHandler(db *gorm.DB, userRepo v1.UserRepository) gin.HandlerFunc {
 			return
 		}
 
-		device := c.GetHeader("User-Agent") // atau header lain sesuai kebutuhan
+		device := c.GetHeader("X-Device-Id")
+		if device == "" {
+			device = c.GetHeader("User-Agent") // fallback jika tidak ada
+		}
 		LogActivity(database.DB, user.ID, device, c.Request.Method+" "+c.Request.URL.Path)
 
 		utils.SuccessResponse(c, "Login successful", gin.H{
