@@ -12,6 +12,7 @@ type UserToken struct {
 	UserID    uuid.UUID `gorm:"type:char(36);not null;index" json:"user_id"`
 	Token     string    `gorm:"type:text;not null" json:"token"`
 	ExpiredAt time.Time `json:"expired_at"`
+	IsRevoked bool      `gorm:"default:false" json:"is_revoked"`
 	CreatedAt time.Time `json:"created_at"`
 
 	User User `gorm:"foreignKey:UserID;references:ID" json:"user"` // relasi ke User

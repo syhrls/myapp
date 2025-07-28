@@ -109,10 +109,17 @@ func LoginHandler(db *gorm.DB, userRepo v1.UserRepository) gin.HandlerFunc {
 
 		expired := time.Now().Add(24 * time.Hour).Unix()
 
+		// Revoke semua token aktif user sebelum membuat token baru
+		db.Model(&models.UserToken{}).
+			Where("user_id = ? AND expired_at > ? AND is_revoked = ?", user.ID, time.Now(), false).
+			Update("is_revoked", true)
+
+		// Generate token baru
 		userToken := models.UserToken{
 			UserID:    user.ID,
 			Token:     token,
 			ExpiredAt: time.Unix(expired, 0),
+			IsRevoked: false, // Set is_revoked false pada awal insert
 			CreatedAt: time.Now(),
 		}
 		if err := db.Create(&userToken).Error; err != nil {

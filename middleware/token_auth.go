@@ -22,8 +22,8 @@ func TokenAuthMiddleware(db *gorm.DB) gin.HandlerFunc {
 		token := strings.TrimPrefix(authHeader, "Bearer ")
 
 		var userToken models.UserToken
-		if err := db.Where("token = ?", token).First(&userToken).Error; err != nil {
-			utils.UnauthorizedResponse(c, "Invalid token")
+		if err := db.Where("token = ? AND is_revoked = ?", token, false).First(&userToken).Error; err != nil {
+			utils.UnauthorizedResponse(c, "Invalid or revoked token")
 			return
 		}
 		if userToken.ExpiredAt.Before(time.Now()) {
