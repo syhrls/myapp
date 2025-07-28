@@ -2,7 +2,7 @@ package v1
 
 import (
 	"example/hello/database"
-	"example/hello/handlers"
+	"example/hello/handlers/v1"
 	"example/hello/utils"
 
 	"github.com/gin-gonic/gin"
