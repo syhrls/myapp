@@ -1,9 +1,13 @@
 package handlers
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"os"
+	"time"
 
 	"example/hello/models"
+	v1 "example/hello/repositories/v1"
 	"example/hello/utils"
 
 	"gorm.io/gorm"
@@ -48,11 +52,11 @@ func RegisterHandler(db *gorm.DB) gin.HandlerFunc {
 		hash, _ := utils.HashPassword(req.Password, salt)
 
 		user := models.User{
-			Username: req.Username,
+			Username:  req.Username,
 			CreatedBy: utils.SYSTEM,
 			UpdatedBy: utils.SYSTEM,
-			Password: hash,
-			Salt:     salt,
+			Password:  hash,
+			Salt:      salt,
 		}
 		if err := db.Create(&user).Error; err != nil {
 			utils.BadRequestResponse(c, "Failed to register: "+err.Error())
@@ -62,8 +66,18 @@ func RegisterHandler(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
-// LoginHandler untuk login dan mendapatkan JWT
-func LoginHandler(db *gorm.DB) gin.HandlerFunc {
+// GenerateRandomToken membuat random string 16 digit (32 karakter hex)
+func GenerateRandomToken() (string, error) {
+	b := make([]byte, 16)
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(b), nil
+}
+
+// LoginHandler untuk login dan generate token random, simpan ke UserToken
+func LoginHandler(db *gorm.DB, userRepo v1.UserRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req LoginRequestDTO
 		if err := c.ShouldBindJSON(&req); err != nil {
@@ -71,58 +85,51 @@ func LoginHandler(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		// Ambil user dari repository
 		user, err := userRepo.FindByUsername(req.Username)
 		if err != nil {
-			utils.UnauthorizedResponse(c, "Username not found")
+			utils.BadRequestResponse(c, "Username not found")
 			return
 		}
 
 		if !utils.CheckPassword(user.Password, req.Password, user.Salt) {
-			utils.UnauthorizedResponse(c, "Invalid password")
+			utils.BadRequestResponse(c, "Invalid password")
 			return
 		}
 
-		secret := os.Getenv("JWT_SECRET")
-		exp := utils.GetJWTExpiration()
-		claims := map[string]any{
-			"id":       user.ID.String(),
-			"username": user.Username,
-			"email":    user.Email,
-			"exp":      exp,
-		}
-		token, err := utils.GenerateJWT(claims, secret)
+		token, err := GenerateRandomToken()
 		if err != nil {
-			utils.BadRequestResponse(c, "Failed to generate token: "+err.Error())
+			utils.BadRequestResponse(c, "Failed to generate token")
 			return
 		}
-
-		// Generate refresh token (could be another JWT or random string)
-		refreshExp := utils.GetJWTExpiration() / 60
-		refreshClaims := map[string]any{
-			"id":       user.ID.String(),
-			"username": user.Username,
-			"email":    user.Email,
-			"exp":      refreshExp,
-			"type":     "refresh",
-		}
-		refreshToken, err := utils.GenerateJWT(refreshClaims, secret)
+		refreshToken, err := GenerateRandomToken()
 		if err != nil {
-			utils.BadRequestResponse(c, "Failed to generate refresh token: "+err.Error())
+			utils.BadRequestResponse(c, "Failed to generate refresh token")
 			return
 		}
 
-		response := gin.H{
+		expired := time.Now().Add(24 * time.Hour).Unix()
+
+		userToken := models.UserToken{
+			UserID:    user.ID,
+			Token:     token,
+			ExpiredAt: time.Unix(expired, 0),
+			CreatedAt: time.Now(),
+		}
+		if err := db.Create(&userToken).Error; err != nil {
+			utils.BadRequestResponse(c, "Failed to save token")
+			return
+		}
+
+		utils.SuccessResponse(c, "Login successful", gin.H{
+			"expired":       expired,
+			"refresh_token": refreshToken,
+			"token":         token,
 			"user": gin.H{
-				"id":       user.ID.String(),
+				"id":       user.ID,
 				"username": user.Username,
 				"email":    user.Email,
 			},
-			"token":         token,
-			"refresh_token": refreshToken,
-			"expired":       exp,
-		}
-		utils.SuccessResponse(c, "Login successful", response)
+		})
 	}
 }
 

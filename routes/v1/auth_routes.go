@@ -3,6 +3,7 @@ package v1
 import (
 	"example/hello/database"
 	"example/hello/handlers/v1"
+	"example/hello/repositories/v1"
 	"example/hello/utils"
 
 	"github.com/gin-gonic/gin"
@@ -10,8 +11,7 @@ import (
 
 func SetupAuthRoutes(r *gin.RouterGroup) {
 	auth := r.Group("/v1/auth", utils.LogStartEnd())
-	{
-		auth.POST("/register", handlers.RegisterHandler(database.DB))
-		auth.POST("/login", handlers.LoginHandler(database.DB))
-	}
+	auth.POST("/register", handlers.RegisterHandler(database.DB))
+	userRepo := v1.NewUserRepository()
+	auth.POST("/login", handlers.LoginHandler(database.DB, userRepo))
 }
