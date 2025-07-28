@@ -10,7 +10,7 @@ import (
 
 func SetupRoutes(r *gin.Engine) {
     api := r.Group("/api")
-    api.Use(middleware.RateLimit(5, time.Minute)) // Rate limit: 5x per menit per IP
+    api.Use(middleware.RateLimitPerEndpoint(5, time.Minute)) // Rate limit: 5x per menit per IP
     v1.SetupUserRoutes(api)
     v1.SetupAuthRoutes(api)
 }

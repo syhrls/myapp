@@ -1,44 +1,48 @@
 package middleware
 
 import (
-    "net/http"
-    "sync"
-    "time"
+	"net/http"
+	"sync"
+	"time"
 
-    "github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin"
 )
 
-type visitor struct {
-    Requests int
-    ResetAt  time.Time
+type endpointVisitor struct {
+	Requests int
+	ResetAt  time.Time
 }
 
-var visitors = make(map[string]*visitor)
+var endpointVisitors = make(map[string]map[string]*endpointVisitor) // map[ip][endpoint]
 var mu sync.Mutex
 
-func RateLimit(maxReq int, window time.Duration) gin.HandlerFunc {
-    return func(c *gin.Context) {
-        ip := c.ClientIP()
-        now := time.Now()
+func RateLimitPerEndpoint(maxReq int, window time.Duration) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ip := c.ClientIP()
+		endpoint := c.FullPath() // endpoint unik per handler
+		now := time.Now()
 
-        mu.Lock()
-        v, exists := visitors[ip]
-        if !exists || now.After(v.ResetAt) {
-            visitors[ip] = &visitor{Requests: 1, ResetAt: now.Add(window)}
-            mu.Unlock()
-            c.Next()
-            return
-        }
+		mu.Lock()
+		if endpointVisitors[ip] == nil {
+			endpointVisitors[ip] = make(map[string]*endpointVisitor)
+		}
+		v, exists := endpointVisitors[ip][endpoint]
+		if !exists || now.After(v.ResetAt) {
+			endpointVisitors[ip][endpoint] = &endpointVisitor{Requests: 1, ResetAt: now.Add(window)}
+			mu.Unlock()
+			c.Next()
+			return
+		}
 
-        if v.Requests >= maxReq {
-            mu.Unlock()
-            c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{
-                "error": "Rate limit exceeded. Try again in 1 minute.",
-            })
-            return
-        }
-        v.Requests++
-        mu.Unlock()
-        c.Next()
-    }
+		if v.Requests >= maxReq {
+			mu.Unlock()
+			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{
+				"error": "Rate limit exceeded for this endpoint. Try again in 1 minute.",
+			})
+			return
+		}
+		v.Requests++
+		mu.Unlock()
+		c.Next()
+	}
 }
