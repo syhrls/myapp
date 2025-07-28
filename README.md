@@ -1,34 +1,3 @@
-# 📦 Project NamaProyek
-
-Deskripsi singkat tentang proyek. Misalnya:
-
-> Aplikasi backend RESTful API menggunakan Golang dan Gin Framework untuk mengelola data pengguna secara efisien dan scalable.
-
-## 🚀 Fitur
-
-- CRUD (Create, Read, Update, Delete)
-- Middleware autentikasi menggunakan JWT
-- Validasi input dengan binding dan validator
-- Logging terstruktur
-- Struktur folder yang clean dan scalable
-
-## 🧱 Struktur Folder
-
-```bash
-.
-├── config/               # Konfigurasi environment, database, dsb
-├── database/             # Inisialisasi dan migrasi database
-├── handlers/             # Handler HTTP (controller)
-├── middleware/           # Middleware custom (auth, rate limit, dsb)
-├── models/               # Struct data dan definisi database
-├── routes/               # Routing aplikasi
-│   └── v1/               # Routing versi 1 (user_routes.go, auth_routes.go, dsb)
-├── utils/                # Helper functions (logger, auth, uuid, dsb)
-├── main.go               # Entry utama aplikasi
-├── go.mod                # Modul Go
-└── README.md             # Dokumentasi proyek
-```
-
 # 📦 Ringkasan Aplikasi
 
 Aplikasi ini merupakan backend RESTful API yang dibangun menggunakan Golang dan Gin Framework, dirancang untuk kebutuhan pengelolaan data pengguna secara efisien, aman, dan scalable. Dengan arsitektur yang modular dan clean, aplikasi ini mudah untuk dikembangkan dan diintegrasikan dengan berbagai frontend modern seperti Next.js, React, maupun aplikasi mobile.
