@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"example/hello/database"
 	"example/hello/models"
 	v1 "example/hello/repositories/v1"
 	"example/hello/utils"
@@ -62,7 +63,17 @@ func RegisterHandler(db *gorm.DB) gin.HandlerFunc {
 			utils.BadRequestResponse(c, "Failed to register: "+err.Error())
 			return
 		}
-		utils.SuccessResponse(c, "Registration successful", nil)
+
+		users, err := userRepo.FindByUsername(req.Username)
+		if err != nil {
+			utils.BadRequestResponse(c, "Username not found")
+			return
+		}
+
+		device := c.GetHeader("User-Agent") // atau header lain sesuai kebutuhan
+		LogActivity(database.DB, users.ID, device, c.Request.Method+" "+c.Request.URL.Path)
+		
+		utils.SuccessResponse(c, "Registration successful", users)
 	}
 }
 
@@ -126,6 +137,9 @@ func LoginHandler(db *gorm.DB, userRepo v1.UserRepository) gin.HandlerFunc {
 			utils.BadRequestResponse(c, "Failed to save token")
 			return
 		}
+
+		device := c.GetHeader("User-Agent") // atau header lain sesuai kebutuhan
+		LogActivity(database.DB, user.ID, device, c.Request.Method+" "+c.Request.URL.Path)
 
 		utils.SuccessResponse(c, "Login successful", gin.H{
 			"expired":       expired,
