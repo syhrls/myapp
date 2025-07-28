@@ -49,6 +49,8 @@ func RegisterHandler(db *gorm.DB) gin.HandlerFunc {
 
 		user := models.User{
 			Username: req.Username,
+			CreatedBy: utils.SYSTEM,
+			UpdatedBy: utils.SYSTEM,
 			Password: hash,
 			Salt:     salt,
 		}
