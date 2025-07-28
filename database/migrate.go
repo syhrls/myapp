@@ -12,6 +12,7 @@ func MigrateModels(db *gorm.DB) {
 	modelsToMigrate := []any{
 		&models.User{},
 		&models.UserToken{},
+		&models.ActivityLog{},
 		// Tambahkan model lain di sini jika ada, contoh:
 		// &models.Product{},
 	}
