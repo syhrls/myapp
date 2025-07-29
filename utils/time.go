@@ -7,10 +7,10 @@ import (
 // WIBTimeNow mengembalikan waktu sekarang dalam zona Asia/Jakarta (WIB)
 func WIBTimeNow() time.Time {
 	loc, err := time.LoadLocation("Asia/Jakarta")
-	if err != nil {
-		// fallback manual jika zona tidak ditemukan
-		loc = time.FixedZone("WIB", 7*3600)
-	}
+    if err != nil {
+		Warn("Falling back to manual +07 timezone due to missing Asia/Jakarta")
+        loc = time.FixedZone("WIB", 7*3600)
+    }
 	return time.Now().In(loc)
 }
 
