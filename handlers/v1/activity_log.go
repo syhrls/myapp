@@ -1,17 +1,19 @@
 package handlers
 
 import (
-    "time"
+	"time"
 
-    "example/hello/models"
-    "github.com/google/uuid"
-    "gorm.io/gorm"
+	"example/hello/models"
+	"example/hello/utils"
+
+	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 // LogActivity mencatat aktivitas user yang sudah login
 func LogActivity(db *gorm.DB, userID uuid.UUID, device, action string) {
     // Hapus log yang lebih dari 1 hari
-    db.Where("created_at < ?", time.Now().Add(-24*time.Hour)).Delete(&models.ActivityLog{})
+    db.Where("created_at < ?", utils.WIBTimeNow().Add(-24*time.Hour)).Delete(&models.ActivityLog{})
 
     // Simpan log baru
     log := models.ActivityLog{
@@ -19,7 +21,7 @@ func LogActivity(db *gorm.DB, userID uuid.UUID, device, action string) {
         UserID:    userID,
         Device:    device,
         Action:    action,
-        CreatedAt: time.Now(),
+        CreatedAt: utils.WIBTimeNow(),
     }
     db.Create(&log)
 }

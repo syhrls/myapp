@@ -6,7 +6,6 @@ import (
 	"example/hello/models"
 	"example/hello/repositories/v1"
 	"example/hello/utils"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -60,9 +59,9 @@ func CreateUser(c *gin.Context) {
 	user := models.User{
 		Username:  input.Username,
 		CreatedBy: utils.SYSTEM_CAPS,
-		CreatedAt: time.Now(),
+		CreatedAt: utils.WIBTimeNow(),
 		UpdatedBy: utils.SYSTEM_CAPS,
-		UpdatedAt: time.Now(),
+		UpdatedAt: utils.WIBTimeNow(),
 	}
 
 	// Simpan ke database

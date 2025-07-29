@@ -55,7 +55,9 @@ func RegisterHandler(db *gorm.DB) gin.HandlerFunc {
 		user := models.User{
 			Username:  req.Username,
 			CreatedBy: utils.SYSTEM,
+			CreatedAt: utils.WIBTimeNow(),
 			UpdatedBy: utils.SYSTEM,
+			UpdatedAt: utils.WIBTimeNow(),
 			Password:  hash,
 			Salt:      salt,
 		}
@@ -121,11 +123,11 @@ func LoginHandler(db *gorm.DB, userRepo v1.UserRepository) gin.HandlerFunc {
 			return
 		}
 
-		expired := time.Now().Add(24 * time.Hour).Unix()
+		expired := utils.WIBTimeNow().Add(24 * time.Hour).Unix()
 
 		// Revoke semua token aktif user sebelum membuat token baru
 		db.Model(&models.UserToken{}).
-			Where("user_id = ? AND expired_at > ? AND is_revoked = ?", user.ID, time.Now(), false).
+			Where("user_id = ? AND expired_at > ? AND is_revoked = ?", user.ID, utils.WIBTimeNow(), false).
 			Update("is_revoked", true)
 
 		// Generate token baru
@@ -134,7 +136,7 @@ func LoginHandler(db *gorm.DB, userRepo v1.UserRepository) gin.HandlerFunc {
 			Token:     token,
 			ExpiredAt: time.Unix(expired, 0),
 			IsRevoked: false, // Set is_revoked false pada awal insert
-			CreatedAt: time.Now(),
+			CreatedAt: utils.WIBTimeNow(),
 		}
 		if err := db.Create(&userToken).Error; err != nil {
 			utils.BadRequestResponse(c, "Failed to save token")
