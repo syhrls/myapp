@@ -6,7 +6,11 @@ import (
 
 // WIBTimeNow mengembalikan waktu sekarang dalam zona Asia/Jakarta (WIB)
 func WIBTimeNow() time.Time {
-	loc := time.FixedZone("WIB", 7*3600)
+	loc, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		// Opsi lain jika gagal: gunakan zona waktu UTC+7 tanpa nama
+		return time.Now().Add(7 * time.Hour)
+	}
 	return time.Now().In(loc)
 }
 
